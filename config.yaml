@@ -1,0 +1,12 @@
+appName: earnings-call-nlp
+
+Dataset:
+  FMP_API_KEY:  <YOUR_API_KEY>
+  FIQA_SA:      1icRTdnu8UcWyDIXtzpsYc2Hm6ACHT-Ch
+  FIQA_QA:      1BlWaV-qVPfpGyJoWQJU9bXQgWCATgxEP
+
+Hyperparameters:
+  learning_rate:  2e-5
+  batch_size: 32
+  num_epochs: 5
+  weight_decay: 5e-4
