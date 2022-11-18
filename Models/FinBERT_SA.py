@@ -4,6 +4,7 @@ from transformers import BertTokenizer, BertForSequenceClassification, pipeline
 from transformers import Trainer, TrainingArguments
 
 from config import Config
+from metrics import compute_metrics
 
 
 class FinBERT_SA:
@@ -17,8 +18,6 @@ class FinBERT_SA:
         self.trained_models_path = os.path.join(os.getcwd(), "finetuned_models", "sentiment_analysis")
 
     def train(self, train_dataset, val_dataset):
-        if not (isinstance(train_dataset, Dataset) and isinstance(val_dataset, Dataset)):
-            raise TypeError("'train_dataset' and 'val_dataset' should be of type torch.utils.data.Dataset")
         args = TrainingArguments(
                 output_dir = self.trained_models_path,
                 evaluation_strategy = 'epoch',
@@ -29,16 +28,19 @@ class FinBERT_SA:
                 num_train_epochs = Config()().get("num_epochs", 5),
                 weight_decay = Config()().get("weight_decay", 0.01),
                 load_best_model_at_end = True,
-                metric_for_best_model = 'eval_loss',
+                metric_for_best_model = 'accuracy',
+                logging_strategy = 'epoch'
         )
-        trainer = Trainer(
+        self.trainer = Trainer(
                     model = self.finbert,
                     args = args,
                     train_dataset = train_dataset,
                     eval_dataset = val_dataset,
+                    compute_metrics = compute_metrics
         )
-        trainer.train()
+        self.trainer.train()
         self.pipeline = pipeline("text-classification", model=self.finbert, tokenizer=self.tokenizer)
+        return self.trainer
 
     def checkSentiment(self, sentence):
         return self.pipeline(sentence)
