@@ -5,6 +5,7 @@ import torch
 from transformers import BertTokenizer, Trainer, BertForSequenceClassification, TrainingArguments, pipeline
 from datasets import Dataset
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_recall_fscore_support
 
 from config import Config
 
@@ -16,11 +17,19 @@ class FinBERT_Aspect:
         self.tokenizer = BertTokenizer.from_pretrained('yiyanghkust/finbert-pretrain')
         self.pipeline = pipeline("text-classification", model=self.finbert, tokenizer=self.tokenizer)
         self.trained_models_path = os.path.join(os.getcwd(), "finetuned_models", "aspect_detection")
+        self.label = []
+        self.preds = []
 
-    def compute(self, eval_pred):
-        predictions, labels = eval_pred
-        predictions = np.argmax(predictions, axis=1)
-        return {'accuracy' : accuracy_score(predictions, labels)}
+    def get_precision_recall(self):
+        precision, recall, fscore, _ = precision_recall_fscore_support(self.label, self.preds, average='weighted')
+        return precision, recall, fscore
+
+    def compute(self,eval_pred):
+            predictions, labels = eval_pred
+            predictions = np.argmax(predictions, axis=1)
+            self.label += [i for i in labels]
+            self.preds += [i for i in predictions]
+            return {'accuracy' : accuracy_score(predictions, labels)}
 
     def train(self, train_dataset, val_dataset, test_dataset=None):
         if not (isinstance(train_dataset, Dataset) and isinstance(val_dataset, Dataset)):
@@ -42,6 +51,7 @@ class FinBERT_Aspect:
                     args = args,
                     train_dataset = train_dataset,
                     eval_dataset = val_dataset,
+                    
         )
         trainer.compute_metrics = self.compute
         trainer.train()
@@ -53,5 +63,3 @@ class FinBERT_Aspect:
 
     def detect_aspect(self, sentence):
         return self.pipeline(sentence)
-
-
