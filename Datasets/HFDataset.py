@@ -1,5 +1,6 @@
 from torch.utils.data import Dataset
 
+#for conversion to torch.utils.data.Dataset
 class HFDataset(Dataset):
     def __init__(self, dset):
         self.dset = dset

@@ -1,29 +1,33 @@
 from transformers import BertTokenizer
 from Datasets.FIQA_SA import FIQA_SA
+from Datasets.FIQA_Aspect import FIQA_Aspect
 from Models.FinBERT_SA import FinBERT_SA
-from torch.utils.data import Dataset
+from Models.FinBERT_Aspect import FinBERT_Aspect
+from Datasets.HFDataset import HFDataset
 
-class HFDataset(Dataset):
-    def __init__(self, dset):
-        self.dset = dset
+tokenizer = BertTokenizer.from_pretrained('yiyanghkust/finbert-pretrain')
 
-    def __getitem__(self, idx):
-        return self.dset[idx]
+"""## Sentiment Analysis"""
 
-    def __len__(self):
-        return len(self.dset)
-
-
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased') 
-# Instance creation
-dataset_loader = FIQA_SA(tokenizer)
+# Instance created
+fiqa_sa_data = FIQA_SA(tokenizer)
 # __call__ method will be called
-train, test  = dataset_loader()
+train_fiqa_sa, test_fiqa_sa  = fiqa_sa_data()
 
-#convert dataset to torch.utils.data
-train_ds = HFDataset(train)
-test_ds = HFDataset(test)
+train_fiqa_sa, test_fiqa_sa = HFDataset(train_fiqa_sa), HFDataset(test_fiqa_sa)
 
-#model instance and train
 model = FinBERT_SA()
-model.train(train_ds, test_ds)
+
+model.train(train_fiqa_sa, test_fiqa_sa)
+
+"""## Aspect Detection"""
+
+# Instance created
+fiqa_ad_data = FIQA_SA(tokenizer)
+# __call__ method will be called
+train_fiqa_ad, test_fiqa_ad  = fiqa_ad_data()
+
+#Define model
+model_ad = FinBERT_Aspect()
+
+model_ad.train(train_fiqa_ad, test_fiqa_ad)

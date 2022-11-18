@@ -17,7 +17,7 @@ class FinBERT_Aspect:
         self.pipeline = pipeline("text-classification", model=self.finbert, tokenizer=self.tokenizer)
         self.trained_models_path = os.path.join(os.getcwd(), "finetuned_models", "aspect_detection")
 
-    def compute_metrics(eval_pred):
+    def compute(self, eval_pred):
         predictions, labels = eval_pred
         predictions = np.argmax(predictions, axis=1)
         return {'accuracy' : accuracy_score(predictions, labels)}
@@ -42,8 +42,8 @@ class FinBERT_Aspect:
                     args = args,
                     train_dataset = train_dataset,
                     eval_dataset = val_dataset,
-                    compute_metrics=self.compute_metrics
         )
+        trainer.compute_metrics = self.compute
         trainer.train()
         self.pipeline = pipeline("text-classification", model=self.finbert, tokenizer=self.tokenizer)
 

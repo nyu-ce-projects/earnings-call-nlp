@@ -6,6 +6,7 @@ from datasets import Dataset #HuggingFace
 
 from config import Config
 from Datasets.utils import getGdriveDataset, unzipFile
+from Datasets.HFDataset import HFDataset
 
 class FIQA_SA:
     def __init__(self, tokenizer):
@@ -54,4 +55,6 @@ class FIQA_SA:
         self.dataset_val.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'label'])
 
     def __call__(self):
-        return self.dataset_train, self.dataset_val
+        self.train_ds = HFDataset(self.dataset_train)
+        self.test_ds = HFDataset(self.dataset_val)
+        return self.train_ds, self.test_ds
