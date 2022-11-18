@@ -1,7 +1,10 @@
 import os
+import numpy as np
 from torch.utils.data import Dataset
 from transformers import BertTokenizer, BertForSequenceClassification, pipeline
 from transformers import Trainer, TrainingArguments
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_recall_fscore_support
 
 from config import Config
 from metrics import compute_metrics
@@ -16,6 +19,19 @@ class FinBERT_SA:
         self.tokenizer = BertTokenizer.from_pretrained(pretrained_path)
         self.pipeline = pipeline("text-classification", model=self.finbert, tokenizer=self.tokenizer)
         self.trained_models_path = os.path.join(os.getcwd(), "finetuned_models", "sentiment_analysis")
+        self.label = []
+        self.preds = []
+
+    def get_precision_recall(self):
+        precision, recall, fscore, _ = precision_recall_fscore_support(self.label, self.preds, average='weighted')
+        return precision, recall, fscore
+
+    def compute(self, eval_pred):
+        predictions, labels = eval_pred
+        predictions = np.argmax(predictions, axis=1)
+        self.label += [i for i in labels]
+        self.preds += [i for i in predictions]
+        return {'accuracy' : accuracy_score(predictions, labels)}
 
     def train(self, train_dataset, val_dataset):
         args = TrainingArguments(
@@ -36,7 +52,7 @@ class FinBERT_SA:
                     args = args,
                     train_dataset = train_dataset,
                     eval_dataset = val_dataset,
-                    compute_metrics = compute_metrics
+                    compute_metrics = self.compute #compute_metrics
         )
         self.trainer.train()
         self.pipeline = pipeline("text-classification", model=self.finbert, tokenizer=self.tokenizer)

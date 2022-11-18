@@ -7,19 +7,8 @@ from torch.utils.data import Dataset
 
 from config import Config
 from Datasets.utils import getGdriveDataset, unzipFile
-
-from FIQA_SA import FIQA_SA
-
-#for conversion to torch.utils.data.Dataset
-class HFDataset(Dataset):
-    def __init__(self, dset):
-        self.dset = dset
-        
-    def __getitem__(self, idx):
-        return self.dset[idx]
-
-    def __len__(self):
-        return len(self.dset)
+from Datasets.HFDataset import HFDataset
+from Datasets.FIQA_SA import FIQA_SA
 
 class FIQA_Aspect(FIQA_SA):
     def __init__(self, tokenizer):
