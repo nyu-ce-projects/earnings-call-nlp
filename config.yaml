@@ -4,6 +4,7 @@ Dataset:
   FMP_API_KEY:  <YOUR_API_KEY>
   FIQA_SA:      1icRTdnu8UcWyDIXtzpsYc2Hm6ACHT-Ch
   FIQA_QA:      1BlWaV-qVPfpGyJoWQJU9bXQgWCATgxEP
+  EarningsCall: https://drive.google.com/drive/folders/1BKCANORbcmUJKkOkBOghw6uNHPqS_az1
 
 Hyperparameters:
   learning_rate:  2e-5
