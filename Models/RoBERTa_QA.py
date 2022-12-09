@@ -13,6 +13,8 @@ class RoBERTa_QA:
         self.model = AutoModelForQuestionAnswering.from_pretrained(pretrained_path)
         self.tokenizer = AutoTokenizer.from_pretrained(pretrained_path)
         self.pipeline = pipeline("question-answering", model=self.model, tokenizer=self.tokenizer)
+        self.label = []
+        self.preds = []
 
     def train(self, train_dataset=None, val_dataset=None):
         raise NotImplementedError
